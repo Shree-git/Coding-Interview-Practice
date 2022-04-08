@@ -316,6 +316,66 @@ def computeClosedPaths(grid, i, j, m, n):
     down = computeClosedPaths(grid, i-1, j, m, n)
     return left and right and up and down
 
+def max_islands(grid):
+    if grid == None or len(grid) == 0:
+        return 0
+    m = len(grid)
+    n = len(grid[0])
+    maxIslands = 0
+    islandId = 2
+    for i in range(m):
+        for j in range(n):
+            if grid[i][j] == 1:
+                maxIslands = max(maxIslands, computeMaxIslands(grid, i, j, m, n, islandId))
+    return maxIslands
+
+def create_max_islands_add_at_most_1(grid):
+    if grid == None or len(grid) == 0:
+        return 0
+    m = len(grid)
+    n = len(grid[0])
+    maxIslands = 0
+    islandId = 2
+    islandDict = {}
+    for i in range(m):
+        for j in range(n):
+            if grid[i][j] == 1:
+                currentIslandArea = computeMaxIslands(grid, i, j, m, n, islandId)
+                maxIslands = max(maxIslands, currentIslandArea)
+                islandDict[islandId] = currentIslandArea
+                islandId += 1
+    for i in range(m):
+        for j in range(n):
+            totalIslands = 1
+            visited = set()
+            if grid[i][j] == 0:              
+                if i-1 > 0 and islandDict.get(grid[i-1][j]):
+                    totalIslands += islandDict[grid[i-1][j]]
+                    visited.add(grid[i-1][j])
+                if i+1 < m and islandDict.get(grid[i+1][j]) and grid[i+1][j] not in visited:
+                    totalIslands += islandDict[grid[i+1][j]]
+                    visited.add(grid[i+1][j])
+                if j-1 > 0 and islandDict.get(grid[i][j-1]) and grid[i][j-1] not in visited:
+                    totalIslands += islandDict[grid[i][j-1]]
+                    visited.add(grid[i][j-1])
+                if j+1 < n and islandDict.get(grid[i][j+1]) and grid[i][j+1] not in visited:
+                    totalIslands += islandDict[grid[i][j+1]]
+                    visited.add(grid[i][j+1])
+            maxIslands = max(maxIslands, totalIslands)
+    return maxIslands
+
+def computeMaxIslands(grid, i, j, m, n, islandId):
+    # 0 -> water
+    # 1 -> land
+    if i < 0 or j < 0 or i >= m or j >= n or grid[i][j] != 1:
+        return 0
+    grid[i][j] = islandId
+    left = computeMaxIslands(grid, i-1, j, m, n, islandId)
+    right = computeMaxIslands(grid, i+1, j, m, n, islandId)
+    top = computeMaxIslands(grid, i, j-1, m, n, islandId)
+    down = computeMaxIslands(grid, i, j+1, m, n, islandId)
+    return left + right + top + down + 1
+
 graph = {
     'a': ['c', 'b'],
     'b': ['d'],
@@ -373,4 +433,8 @@ grid2 = [
 
 # print(remove_islands_on_borders(grid1))
 
-print(number_of_closed_islands(grid2))
+# print(number_of_closed_islands(grid2))
+
+# print(max_islands(grid1))
+
+print(create_max_islands_add_at_most_1(grid2))
